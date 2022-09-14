@@ -13,13 +13,55 @@ export const asyncRouterMap = [
     name: 'index',
     component: BasicLayout,
     meta: { title: 'menu.home' },
-    redirect: '/dashboard/workplace',
+    redirect: '/summary',
     children: [
+      {
+        path: '/summary',
+        name: 'Summary',
+        redirect: '/dashboard/check',
+        component: RouteView,
+        meta: { title: 'menu.dashboard.summary', keepAlive: false, permission: ['dashboard'] },
+        children: [
+          {
+            path: '/dashboard/room',
+            name: 'room',
+            component: () => import('@/views/dashboard/Room'),
+            meta: { title: 'menu.dashboard.room', keepAlive: false, permission: ['dashboard'] }
+          },
+          {
+            path: '/dashboard/Check',
+            name: 'check',
+            component: () => import('@/views/dashboard/Check'),
+            meta: { title: 'menu.dashboard.check', keepAlive: true, permission: ['dashboard'] }
+          }
+        ]
+      },
+      {
+        path: '/history',
+        name: 'history',
+        redirect: '/history/record',
+        component: RouteView,
+        meta: { title: 'menu.history.history', keepAlive: false, permission: ['dashboard'] },
+        children: [
+          {
+            path: '/history/record',
+            name: 'record',
+            component: () => import('@/views/history/Record'),
+            meta: { title: 'menu.history.record', keepAlive: false, permission: ['dashboard'] }
+          },
+          {
+            path: '/history/statistics',
+            name: 'statistics',
+            component: () => import('@/views/history/Statistics'),
+            meta: { title: 'menu.history.statistics', keepAlive: true, permission: ['dashboard'] }
+          }
+        ]
+      },
       // dashboard
       {
         path: '/dashboard',
         name: 'dashboard',
-        redirect: '/dashboard/workplace',
+        redirect: '/dashboard/summary',
         component: RouteView,
         meta: { title: 'menu.dashboard', keepAlive: true, icon: bxAnaalyse, permission: ['dashboard'] },
         children: [
@@ -29,12 +71,6 @@ export const asyncRouterMap = [
             component: () => import('@/views/dashboard/Analysis'),
             meta: { title: 'menu.dashboard.analysis', keepAlive: false, permission: ['dashboard'] }
           },
-          // 外部链接
-          // {
-          //   path: 'https://www.baidu.com/',
-          //   name: 'Monitor',
-          //   meta: { title: 'menu.dashboard.monitor', target: '_blank' }
-          // },
           {
             path: '/dashboard/workplace',
             name: 'Workplace',

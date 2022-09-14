@@ -1,6 +1,6 @@
 import storage from 'store'
 import expirePlugin from 'store/plugins/expire'
-import { login, getInfo, logout } from '@/api/login'
+import { login, getInfo, logout, loadMenuList } from '@/api/login'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 import { welcome } from '@/utils/util'
 
@@ -39,9 +39,12 @@ const user = {
     Login ({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
         login(userInfo).then(response => {
-          const result = response.result
-          storage.set(ACCESS_TOKEN, result.token, new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
-          commit('SET_TOKEN', result.token)
+          const result = response.ok
+          if (result === '1') {
+            storage.set(ACCESS_TOKEN, response.UID, new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+            commit('SET_TOKEN', response.UID)
+            commit('SET_INFO', response)
+          }
           resolve()
         }).catch(error => {
           reject(error)
@@ -61,10 +64,12 @@ const user = {
               const per = {
                 ...permission,
                 actionList: (permission.actionEntitySet || {}).map(item => item.action)
-               }
+              }
               return per
             })
-            role.permissionList = role.permissions.map(permission => { return permission.permissionId })
+            role.permissionList = role.permissions.map(permission => {
+              return permission.permissionId
+            })
             // 覆盖响应体的 role, 供下游使用
             result.role = role
 
@@ -83,6 +88,19 @@ const user = {
       })
     },
 
+    // 获取用户信息
+    LoadMenuList ({ commit, state }) {
+      console.log('state', state)
+      return new Promise((resolve, reject) => {
+        loadMenuList({ ...state.info }).then(response => {
+            commit('SET_ROLES', response)
+            // 下游
+            resolve(response)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
     // 登出
     Logout ({ commit, state }) {
       return new Promise((resolve) => {

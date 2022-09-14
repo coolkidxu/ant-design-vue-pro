@@ -43,12 +43,9 @@ const errorHandler = (error) => {
 
 // request interceptor
 request.interceptors.request.use(config => {
-  const token = storage.get(ACCESS_TOKEN)
+  config.headers['Content-Type'] = 'multipart/form-data'
   // 如果 token 存在
   // 让每个请求携带自定义 token 请根据实际情况自行修改
-  if (token) {
-    config.headers[ACCESS_TOKEN] = token
-  }
   return config
 }, errorHandler)
 

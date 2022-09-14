@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 
-const userApi = {
-  Login: '/cgi-bin/Session.cgi',
+const historyApi = {
+  GetInterface: '/cgi-bin/ComManager.cgi?loadAllCom',
   Logout: '/auth/logout',
   ForgePassword: '/auth/forge-password',
   Register: '/auth/register',
@@ -9,9 +9,8 @@ const userApi = {
   SendSms: '/account/sms',
   SendSmsErr: '/account/sms_err',
   // get my info
-  UserInfo: '/cgi-bin/UserManager.cgi?loadRole=1',
-  UserMenu: '/cgi-bin/MenuManager.cgi?loadMenuByRole',
-  LoadMenuByUser: '/cgi-bin/MenuManager.cgi?loadMenuByRole'
+  UserInfo: '/user/info',
+  UserMenu: '/user/nav'
 }
 
 /**
@@ -25,24 +24,16 @@ const userApi = {
  * @param parameter
  * @returns {*}
  */
-export function login (parameter) {
+export function getInterface (parameter) {
   return request({
-    url: userApi.Login,
-    method: 'post',
-    data: parameter
-  })
-}
-export function loadMenuList (parameter) {
-  return request({
-    url: userApi.LoadMenuByUser,
-    method: 'post',
-    data: parameter
+    url: historyApi.GetInterface,
+    method: 'get'
   })
 }
 
 export function getSmsCaptcha (parameter) {
   return request({
-    url: userApi.SendSms,
+    url: historyApi.SendSms,
     method: 'post',
     data: parameter
   })
@@ -50,22 +41,28 @@ export function getSmsCaptcha (parameter) {
 
 export function getInfo () {
   return request({
-    url: userApi.UserInfo,
-    method: 'get'
+    url: historyApi.UserInfo,
+    method: 'get',
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }
 
 export function getCurrentUserNav () {
   return request({
-    url: userApi.UserMenu,
+    url: historyApi.UserMenu,
     method: 'get'
   })
 }
 
 export function logout () {
   return request({
-    url: userApi.Logout,
-    method: 'post'
+    url: historyApi.Logout,
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    }
   })
 }
 
@@ -75,7 +72,7 @@ export function logout () {
  */
 export function get2step (parameter) {
   return request({
-    url: userApi.twoStepCode,
+    url: historyApi.twoStepCode,
     method: 'post',
     data: parameter
   })
