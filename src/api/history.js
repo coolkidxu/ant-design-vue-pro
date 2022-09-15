@@ -10,7 +10,9 @@ const historyApi = {
   SendSmsErr: '/account/sms_err',
   // get my info
   UserInfo: '/user/info',
-  UserMenu: '/user/nav'
+  UserMenu: '/user/nav',
+  SelectCondition: 'cgi-bin/HistoryRecord.cgi?loadSelectCondition',
+  QueryHistoryRecord: 'cgi-bin/HistoryRecord.cgi?loadHistoryRecord'
 }
 
 /**
@@ -28,6 +30,20 @@ export function getInterface (parameter) {
   return request({
     url: historyApi.GetInterface,
     method: 'get'
+  })
+}
+
+export function getSelectCondition () {
+  return request({
+    url: historyApi.SelectCondition,
+    method: 'get'
+  })
+}
+export function queryHistoryRecord (parameter) {
+  return request({
+    url: historyApi.QueryHistoryRecord,
+    method: 'post',
+    data: parameter
   })
 }
 

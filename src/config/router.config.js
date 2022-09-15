@@ -17,7 +17,7 @@ export const asyncRouterMap = [
     children: [
       {
         path: '/summary',
-        name: 'Summary',
+        name: 'summary',
         redirect: '/dashboard/check',
         component: RouteView,
         meta: { title: 'menu.dashboard.summary', keepAlive: false, permission: ['dashboard'] },
@@ -33,6 +33,27 @@ export const asyncRouterMap = [
             name: 'check',
             component: () => import('@/views/dashboard/Check'),
             meta: { title: 'menu.dashboard.check', keepAlive: true, permission: ['dashboard'] }
+          }
+        ]
+      },
+      {
+        path: '/device',
+        name: 'device',
+        redirect: '/device/management',
+        component: RouteView,
+        meta: { title: 'menu.device.deviceManagement', keepAlive: false, permission: ['dashboard'] },
+        children: [
+          {
+            path: '/device/management',
+            name: 'management',
+            component: () => import('@/views/device/DeviceManagement'),
+            meta: { title: 'menu.device.deviceManagement', keepAlive: false, permission: ['dashboard'] }
+          },
+          {
+            path: '/device/interfaceConfig',
+            name: 'interfaceConfig',
+            component: () => import('@/views/device/InterfaceConfig'),
+            meta: { title: 'menu.device.interfaceConfig', keepAlive: true, permission: ['dashboard'] }
           }
         ]
       },
@@ -54,6 +75,45 @@ export const asyncRouterMap = [
             name: 'statistics',
             component: () => import('@/views/history/Statistics'),
             meta: { title: 'menu.history.statistics', keepAlive: true, permission: ['dashboard'] }
+          }
+        ]
+      },
+      {
+        path: '/alarm',
+        name: 'alarm',
+        redirect: '/alarm/level',
+        component: RouteView,
+        meta: { title: 'menu.alarm.management', keepAlive: false, permission: ['dashboard'] },
+        children: [
+          {
+            path: '/alarm/level',
+            name: 'level',
+            component: () => import('@/views/alarm/Level'),
+            meta: { title: 'menu.alarm.level', keepAlive: false, permission: ['dashboard'] }
+          },
+          {
+            path: '/alarm/process',
+            name: 'process',
+            component: () => import('@/views/alarm/Process'),
+            meta: { title: 'menu.alarm.process', keepAlive: false, permission: ['dashboard'] }
+          },
+          {
+            path: '/alarm/armOrDisArm',
+            name: 'armOrDisArm',
+            component: () => import('@/views/alarm/ArmOrDisArm'),
+            meta: { title: 'menu.alarm.armOrDisArm', keepAlive: false, permission: ['dashboard'] }
+          },
+          {
+            path: '/alarm/alarmRecord',
+            name: 'alarmRecord',
+            component: () => import('@/views/alarm/Record'),
+            meta: { title: 'menu.alarm.record', keepAlive: false, permission: ['dashboard'] }
+          },
+          {
+            path: '/alarm/alarmStatistics',
+            name: 'alarmStatistics',
+            component: () => import('@/views/alarm/Statistics'),
+            meta: { title: 'menu.alarm.statistics', keepAlive: false, permission: ['dashboard'] }
           }
         ]
       },

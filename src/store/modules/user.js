@@ -41,7 +41,7 @@ const user = {
         login(userInfo).then(response => {
           const result = response.ok
           if (result === '1') {
-            storage.set(ACCESS_TOKEN, response.UID, new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+            storage.set(ACCESS_TOKEN, response.UID, new Date().getTime() + 7 * 24 * 60 * 60 * 10000000)
             commit('SET_TOKEN', response.UID)
             commit('SET_INFO', response)
           }
@@ -90,9 +90,9 @@ const user = {
 
     // 获取用户信息
     LoadMenuList ({ commit, state }) {
-      console.log('state', state)
+      const uid = storage.get(ACCESS_TOKEN)
       return new Promise((resolve, reject) => {
-        loadMenuList({ ...state.info }).then(response => {
+        loadMenuList({ UID: uid }).then(response => {
             commit('SET_ROLES', response)
             // 下游
             resolve(response)
