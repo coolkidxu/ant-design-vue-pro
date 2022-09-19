@@ -1,6 +1,6 @@
 // eslint-disable-next-line
 import { UserLayout, BasicLayout, BlankLayout } from '@/layouts'
-import { bxAnaalyse } from '@/core/icons'
+// import { bxAnaalyse } from '@/core/icons'
 
 const RouteView = {
   name: 'RouteView',
@@ -117,8 +117,29 @@ export const asyncRouterMap = [
           }
         ]
       },
-      // dashboard
       {
+        path: '/userManagement',
+        name: 'UserManagement',
+        redirect: '/userManagement/roleDefinition',
+        component: RouteView,
+        meta: { title: 'menu.userManagement.management', keepAlive: false, permission: ['dashboard'] },
+        children: [
+          {
+            path: '/userManagement/roleDefinition',
+            name: 'RoleDefinition',
+            component: () => import('@/views/user/RoleDefinition'),
+            meta: { title: 'menu.userManagement.roleDefinition', keepAlive: false, permission: ['dashboard'] }
+          },
+          {
+            path: '/userManagement/userAuthorization',
+            name: 'UserAuthorization',
+            component: () => import('@/views/user/UserAuthorization'),
+            meta: { title: 'menu.userManagement.userAuthorization', keepAlive: true, permission: ['dashboard'] }
+          }
+        ]
+      }
+      // dashboard
+     /* {
         path: '/dashboard',
         name: 'dashboard',
         redirect: '/dashboard/summary',
@@ -257,13 +278,13 @@ export const asyncRouterMap = [
           {
             path: '/result/success',
             name: 'ResultSuccess',
-            component: () => import(/* webpackChunkName: "result" */ '@/views/result/Success'),
+            component: () => import(/!* webpackChunkName: "result" *!/ '@/views/result/Success'),
             meta: { title: 'menu.result.success', keepAlive: false, hiddenHeaderContent: true, permission: ['result'] }
           },
           {
             path: '/result/fail',
             name: 'ResultFail',
-            component: () => import(/* webpackChunkName: "result" */ '@/views/result/Error'),
+            component: () => import(/!* webpackChunkName: "result" *!/ '@/views/result/Error'),
             meta: { title: 'menu.result.fail', keepAlive: false, hiddenHeaderContent: true, permission: ['result'] }
           }
         ]
@@ -280,19 +301,19 @@ export const asyncRouterMap = [
           {
             path: '/exception/403',
             name: 'Exception403',
-            component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/403'),
+            component: () => import(/!* webpackChunkName: "fail" *!/ '@/views/exception/403'),
             meta: { title: 'menu.exception.not-permission', permission: ['exception'] }
           },
           {
             path: '/exception/404',
             name: 'Exception404',
-            component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/404'),
+            component: () => import(/!* webpackChunkName: "fail" *!/ '@/views/exception/404'),
             meta: { title: 'menu.exception.not-find', permission: ['exception'] }
           },
           {
             path: '/exception/500',
             name: 'Exception500',
-            component: () => import(/* webpackChunkName: "fail" */ '@/views/exception/500'),
+            component: () => import(/!* webpackChunkName: "fail" *!/ '@/views/exception/500'),
             meta: { title: 'menu.exception.server-error', permission: ['exception'] }
           }
         ]
@@ -363,7 +384,7 @@ export const asyncRouterMap = [
             ]
           }
         ]
-      }
+      } */
 
       // other
       /*
