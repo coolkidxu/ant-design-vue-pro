@@ -4,13 +4,6 @@
       <a-row :gutter="40">
         <a-col :lg="6" :md="8" :sm="24">
           <a-form-item label="设备类">
-            <a-select v-model="queryParam.DCID" placeholder="请选择">
-              <a-select-option v-for="(item, index) in condition.classes" :value="item.DCID" :key="index">{{ item.DCName }}</a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-        <a-col :lg="6" :md="8" :sm="24">
-          <a-form-item label="设备">
             <a-select v-model="queryParam.DID" placeholder="请选择">
               <a-select-option v-for="(item, index) in condition.device" :value="item.DID" :key="index">{{ item.DName }}</a-select-option>
             </a-select>
@@ -18,31 +11,15 @@
         </a-col>
         <a-col :lg="6" :md="8" :sm="24">
           <a-form-item label="监控项">
-            <a-select v-model="queryParam.VID" placeholder="请选择">
-              <a-select-option v-for="(item, index) in condition.vars" :value="item.VID" :key="index">{{ item.VName }}</a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-        <a-col :lg="6" :md="8" :sm="24">
-          <a-form-item label="报警级别">
-            <a-select v-model="queryParam.VID" placeholder="请选择">
-              <a-select-option v-for="(item, index) in condition.vars" :value="item.VID" :key="index">{{ item.VName }}</a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-      </a-row>
-      <a-row :gutter="40">
-        <a-col :lg="6" :md="8" :sm="24">
-          <a-form-item label="报警状态">
-            <a-select v-model="queryParam.VID" placeholder="请选择">
-              <a-select-option v-for="(item, index) in condition.vars" :value="item.VID" :key="index">{{ item.VName }}</a-select-option>
+            <a-select v-model="queryParam.CID" placeholder="请选择">
+              <a-select-option v-for="(item, index) in condition.controls" :value="item.CID" :key="index">{{ item.CName }}</a-select-option>
             </a-select>
           </a-form-item>
         </a-col>
         <a-col :lg="12" :md="12" :sm="24">
           <a-form-item label="开始时间" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
             <a-date-picker
-              v-model="queryParam.VRTimeBegin"
+              v-model="queryParam.CRTimeBegin"
               :disabled-date="disabledStartDate"
               show-time
               format="YYYY-MM-DD HH:mm:ss"
@@ -52,7 +29,7 @@
               @openChange="handleStartOpenChange"
             />
             <a-date-picker
-              v-model="queryParam.VRTimeEnd"
+              v-model="queryParam.CRTimeEnd"
               :disabled-date="disabledEndDate"
               show-time
               format="YYYY-MM-DD HH:mm:ss"
@@ -68,7 +45,7 @@
       <a-row >
         <a-col :md="8" :sm="24">
           <div class="button-container">
-            <a-button type="primary" @click="loadAlarmRecord">查询</a-button>
+            <a-button type="primary" @click="loadControlRecord">查询</a-button>
             <a-button>导出</a-button>
             <a-button >清除查询记录</a-button>
             <a-button >清空</a-button>
@@ -86,13 +63,6 @@
         @change="handleChange"
         rowKey="ID"
       >
-        <span slot="ANType" slot-scope="ANType">
-          <a-tag
-            :color="ANType === '1' ? 'green' : 'red'"
-          >
-            {{ ANType === '1' ? '电压' : '电流' }}
-          </a-tag>
-        </span>
       </a-table>
     </section>
   </a-card>
@@ -100,7 +70,7 @@
 
 <script>
 
-import { getAlarmCondition, loadAlarmRecord } from '@/api/alarm'
+import { loadControlRecord, loadSelectCondition } from '@/api/system'
 
 export default {
   name: 'Analysis',
@@ -128,82 +98,51 @@ export default {
           align: 'center'
         },
         {
-          title: '设备类',
-          dataIndex: 'DCName',
-          key: 'DCName',
-          align: 'center'
-        },
-        {
           title: '设备',
           dataIndex: 'DName',
           key: 'DName',
           align: 'center'
         },
         {
-          title: '监控项',
-          dataIndex: 'VName',
-          key: 'VName',
+          title: '控制名称',
+          dataIndex: 'CName',
+          key: 'CName',
           align: 'center'
         },
         {
-          title: '报警名称',
-          dataIndex: 'AlarmMsg',
-          key: 'AlarmMsg',
+          title: '控制结果',
+          dataIndex: 'DRResult',
+          key: 'DRResult',
           align: 'center'
         },
         {
-          title: '报警等级',
-          dataIndex: 'ALName',
-          key: 'ALName',
+          title: '联动名称',
+          dataIndex: 'CGName',
+          key: 'CGName',
           align: 'center'
         },
         {
-          title: '报警触发值',
-          dataIndex: 'ARValue',
-          key: 'ARValue',
+          title: '控制用户',
+          dataIndex: 'CRUser',
+          key: 'CRUser',
           align: 'center'
         },
         {
-          title: '恢复值',
-          dataIndex: 'ARValue2',
-          key: 'ARValue2',
+          title: '时间',
+          dataIndex: 'CRTime',
+          key: 'CRTime',
           align: 'center'
         },
         {
-          title: '报警时间',
-          dataIndex: 'ARSTime',
-          key: 'ARSTime',
-          align: 'center'
-        },
-        {
-          title: '确认时间',
-          dataIndex: 'ARAckTime',
-          key: 'ARAckTime',
-          align: 'center'
-        },
-        {
-          title: '解除时间',
-          dataIndex: 'ARETime',
-          key: 'ARETime',
-          align: 'center'
-        },
-        {
-          title: '报警处理状态',
-          dataIndex: 'ARState',
-          key: 'ARState',
-          scopedSlots: { customRender: 'state' },
-          align: 'center'
-        },
-        {
-          title: '确认者',
-          dataIndex: 'ARRelieve',
-          key: 'ARRelieve',
+          title: '控制值',
+          dataIndex: 'CRValue',
+          key: 'CRValue',
           align: 'center'
         },
         {
           title: '备注',
-          dataIndex: 'ARNote',
-          key: 'ARNote',
+          dataIndex: 'CRNote',
+          key: 'CRNote',
           align: 'center'
         }
       ],
@@ -212,7 +151,7 @@ export default {
   },
   computed: {},
   created () {
-    this.loadAlarmRecord()
+    this.loadControlRecord()
     this.loadSelectCondition()
   },
   methods: {
@@ -223,36 +162,34 @@ export default {
       console.log('selectedRowKeys changed: ', selectedRowKeys)
       this.selectedRowKeys = selectedRowKeys
     },
-    loadAlarmRecord () {
+    loadControlRecord () {
       this.loading = true
       const requestObj = {
         ...this.queryParam,
         Page: this.pagination.current,
         pageCount: this.pagination.pageSize
       }
-      loadAlarmRecord(requestObj).then(res => {
+      loadControlRecord(requestObj).then(res => {
         this.loading = false
-        console.log('alramRecord', res.rows)
         this.dataSource = res.rows
         this.pagination.total = Number(res.total)
-        this.simulationDataSource = res.analog
       })
     },
     loadSelectCondition () {
-      getAlarmCondition().then(res => {
+      loadSelectCondition().then(res => {
         this.condition = res
         console.log('data', res)
       })
     },
     disabledStartDate (startValue) {
-      const endValue = this.queryParam.VRTimeEnd
+      const endValue = this.queryParam.CRTimeEnd
       if (!startValue || !endValue) {
         return false
       }
       return startValue.valueOf() > endValue.valueOf()
     },
     disabledEndDate (endValue) {
-      const startValue = this.queryParam.VRTimeBegin
+      const startValue = this.queryParam.CRTimeBegin
       if (!endValue || !startValue) {
         return false
       }
@@ -270,7 +207,7 @@ export default {
       const { current, pageSize } = pagination
       this.pagination.current = current
       this.pagination.pageSize = pageSize
-      this.loadAlarmRecord()
+      this.loadControlRecord()
     }
   }
 }

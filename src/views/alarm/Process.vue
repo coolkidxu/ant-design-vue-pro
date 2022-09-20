@@ -53,7 +53,7 @@
                     <template slot="title">
                       注意:外置短信电话模块不支持拨号二次转机
                     </template>
-                    <a-icon type="info-circle" class='form-tooltip'/>
+                    <a-icon type="info-circle" class="form-tooltip"/>
                   </a-tooltip>
                 </h3>
                 <a-col :span="12">
@@ -249,7 +249,7 @@ export default {
       this.loading = true
       const requestObj = {
         ...this.queryParam,
-        page: this.pagination.current,
+        Page: this.pagination.current,
         pageCount: this.pagination.pageSize
       }
       queryHistoryRecord(requestObj).then(res => {
@@ -267,7 +267,7 @@ export default {
 @import '~ant-design-vue/es/style/themes/default.less';
 .button-container {
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   gap: 1em;
   margin-bottom: 1em;
 }

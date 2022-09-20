@@ -4,8 +4,9 @@
       <a-row >
         <a-col :md="8" :sm="24">
           <div class="button-container">
-            <a-button type="primary" @click="query">添加</a-button>
-            <a-button>删除</a-button>
+            <a-button type="primary" @click="loadAllConsumer">添加</a-button>
+            <a-button type="primary" @click="loadAllConsumer">导入</a-button>
+            <a-button>导出</a-button>
           </div>
         </a-col>
       </a-row>
@@ -16,16 +17,8 @@
         :data-source="dataSource"
         :columns="columns"
         :loading="loading"
-        @change="handleChange"
-        rowKey="ALID"
+        rowKey="ID"
       >
-        <span slot="color" slot-scope="color">
-          <a-tag
-            :color="'#' + color"
-          >
-            {{ color }}
-          </a-tag>
-        </span>
       </a-table>
     </section>
   </a-card>
@@ -33,8 +26,7 @@
 
 <script>
 
-import { queryHistoryRecord } from '@/api/history'
-import { loadAlarmLevel } from '@/api/alarm'
+import { loadAllConsumer } from '@/api/accessControl'
 
 export default {
   name: 'Analysis',
@@ -45,66 +37,62 @@ export default {
       dataSource: [],
       columns: [
         {
-          title: '级别编号',
-          dataIndex: 'ALID',
-          key: 'ALID',
+          title: '姓名',
+          dataIndex: 'ConsumerName',
+          key: 'ConsumerName',
           align: 'center'
         },
         {
-          title: '报警级别',
-          dataIndex: 'ALName',
-          key: 'ALName',
+          title: '卡号',
+          dataIndex: 'CardID',
+          key: 'CardID',
           align: 'center'
         },
         {
-          title: '报警颜色',
-          key: 'CColorCode',
-          dataIndex: 'CColorCode',
-          scopedSlots: { customRender: 'color' },
+          title: '密码',
+          dataIndex: 'ConsumerPW',
+          key: 'ConsumerPW',
           align: 'center'
         },
         {
-          title: '编辑',
+          title: '部门',
+          dataIndex: 'GroupName',
+          key: 'GroupName',
+          align: 'center'
+        },
+        {
+          title: '工号',
+          dataIndex: 'ConsumerNumber',
+          key: 'ConsumerNumber',
+          align: 'center'
+        },
+        {
+          title: '操作',
           key: 'edit',
           scopedSlots: { customRender: 'edit' },
           align: 'center'
         }
-      ]
+      ],
+      condition: {}
     }
   },
   computed: {},
   created () {
-    this.getLevel()
+    this.loadAllConsumer()
   },
   methods: {
     onSelectChange (selectedRowKeys) {
       console.log('selectedRowKeys changed: ', selectedRowKeys)
       this.selectedRowKeys = selectedRowKeys
     },
-    getLevel () {
+    loadAllConsumer () {
       this.loading = true
-      loadAlarmLevel().then(res => {
+      loadAllConsumer({
+        limit: 5,
+        offset: 0
+      }).then(res => {
         this.loading = false
         this.dataSource = res
-      })
-    },
-    handleChange (pagination) {
-      const { current, pageSize } = pagination
-      this.pagination.current = current
-      this.pagination.pageSize = pageSize
-      this.query()
-    },
-    query () {
-      this.loading = true
-      const requestObj = {
-        ...this.queryParam,
-        Page: this.pagination.current,
-        pageCount: this.pagination.pageSize
-      }
-      queryHistoryRecord(requestObj).then(res => {
-        this.loading = false
-        console.log('data', res)
-        this.dataSource = res.rows
       })
     }
   }

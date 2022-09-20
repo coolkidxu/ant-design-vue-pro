@@ -1,32 +1,18 @@
 <template>
   <a-card>
     <a-form :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-      <a-row :gutter="10">
-        <a-col :md="4" :sm="24">
-          <a-form-item label="设备类">
-            <a-select v-model="queryParam.DCID" placeholder="请选择">
-              <a-select-option v-for="(item, index) in condition.classes" :value="item.DCID" :key="index">{{ item.DCName }}</a-select-option>
+      <a-row :gutter="40">
+        <a-col :lg="6" :md="8" :sm="24">
+          <a-form-item label="卡号">
+            <a-select v-model="queryParam.CardID" placeholder="请选择">
+              <a-select-option v-for="(item, index) in condition" :value="item.CardID" :key="index" clear>{{ item.CardID }}</a-select-option>
             </a-select>
           </a-form-item>
         </a-col>
-        <a-col :md="4" :sm="24">
-          <a-form-item label="设备">
-            <a-select v-model="queryParam.DID" placeholder="请选择">
-              <a-select-option v-for="(item, index) in condition.device" :value="item.DID" :key="index">{{ item.DName }}</a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-        <a-col :md="4" :sm="24">
-          <a-form-item label="监控项">
-            <a-select v-model="queryParam.VID" placeholder="请选择">
-              <a-select-option v-for="(item, index) in condition.vars" :value="item.VID" :key="index">{{ item.VName }}</a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-        <a-col :md="12" :sm="24">
+        <a-col :lg="12" :md="12" :sm="24">
           <a-form-item label="开始时间" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
             <a-date-picker
-              v-model="queryParam.VRTimeBegin"
+              v-model="queryParam.ARSTime"
               :disabled-date="disabledStartDate"
               show-time
               format="YYYY-MM-DD HH:mm:ss"
@@ -36,7 +22,7 @@
               @openChange="handleStartOpenChange"
             />
             <a-date-picker
-              v-model="queryParam.VRTimeEnd"
+              v-model="queryParam.ARETime"
               :disabled-date="disabledEndDate"
               show-time
               format="YYYY-MM-DD HH:mm:ss"
@@ -52,9 +38,8 @@
       <a-row >
         <a-col :md="8" :sm="24">
           <div class="button-container">
-            <a-button type="primary" @click="query">查询</a-button>
+            <a-button type="primary" @click="loadControlRecord">查询</a-button>
             <a-button>导出</a-button>
-            <a-button >清除查询记录</a-button>
             <a-button >清空</a-button>
           </div>
         </a-col>
@@ -70,13 +55,6 @@
         @change="handleChange"
         rowKey="ID"
       >
-        <span slot="ANType" slot-scope="ANType">
-          <a-tag
-            :color="ANType === '1' ? 'green' : 'red'"
-          >
-            {{ ANType === '1' ? '电压' : '电流' }}
-          </a-tag>
-        </span>
       </a-table>
     </section>
   </a-card>
@@ -84,7 +62,7 @@
 
 <script>
 
-import { getSelectCondition, queryHistoryRecord } from '@/api/history'
+import { getRecord, getRecordSelectCondition } from '@/api/accessControl'
 
 export default {
   name: 'Analysis',
@@ -98,7 +76,10 @@ export default {
       pagination: {
         current: 1,
         pageSize: 10,
-        total: 0
+        total: 0,
+        showTotal: function (total) {
+          return `共 ${total} 条`
+        }
       },
       queryParam: {},
       columns: [
@@ -109,47 +90,45 @@ export default {
           align: 'center'
         },
         {
-          title: '设备类',
-          dataIndex: 'DCName',
-          key: 'DCName',
+          title: '卡号',
+          dataIndex: 'CardID',
+          key: 'CardID',
           align: 'center'
         },
         {
-          title: '设备类',
-          dataIndex: 'DName',
-          key: 'DName',
+          title: '姓名',
+          dataIndex: 'ConsumerName',
+          key: 'ConsumerName',
           align: 'center'
         },
         {
-          title: '监控项',
-          dataIndex: 'VName',
-          key: 'VName',
+          title: '部门',
+          dataIndex: 'GroupName',
+          key: 'GroupName',
+          align: 'center'
+        },
+        {
+          title: '日期',
+          dataIndex: 'Date',
+          key: 'Date',
+          align: 'center'
+        },
+        {
+          title: '门店',
+          dataIndex: 'DTDoorName',
+          key: 'DTDoorName',
           align: 'center'
         },
         {
           title: '状态',
-          dataIndex: 'VRState',
-          key: 'VRState',
+          dataIndex: 'Statue',
+          key: 'Statue',
           align: 'center'
         },
         {
-          title: '记录值',
-          dataIndex: 'VRValue',
-          key: 'VRValue',
-          align: 'center'
-        },
-        {
-          title: '记录时间',
-          dataIndex: 'VRTime',
-          key: 'VRTime',
-          scopedSlots: { customRender: 'flags' },
-          align: 'center'
-        },
-        {
-          title: '备注',
-          dataIndex: 'VRNote',
-          key: 'VRNote',
-          scopedSlots: { customRender: 'debug' },
+          title: '进出方式',
+          dataIndex: 'ReasonDes',
+          key: 'ReasonDes',
           align: 'center'
         }
       ],
@@ -158,7 +137,7 @@ export default {
   },
   computed: {},
   created () {
-    this.loadInterface()
+    this.loadControlRecord()
     this.loadSelectCondition()
   },
   methods: {
@@ -169,35 +148,33 @@ export default {
       console.log('selectedRowKeys changed: ', selectedRowKeys)
       this.selectedRowKeys = selectedRowKeys
     },
-    loadInterface () {
+    loadControlRecord () {
       this.loading = true
       const requestObj = {
         ...this.queryParam,
         Page: this.pagination.current,
         pageCount: this.pagination.pageSize
       }
-      queryHistoryRecord(requestObj).then(res => {
+      getRecord(requestObj).then(res => {
         this.loading = false
         this.dataSource = res.rows
         this.pagination.total = Number(res.total)
-        this.simulationDataSource = res.analog
       })
     },
     loadSelectCondition () {
-      getSelectCondition().then(res => {
+      getRecordSelectCondition().then(res => {
         this.condition = res
-        console.log('data', res)
       })
     },
     disabledStartDate (startValue) {
-      const endValue = this.queryParam.VRTimeEnd
+      const endValue = this.queryParam.ARETime
       if (!startValue || !endValue) {
         return false
       }
       return startValue.valueOf() > endValue.valueOf()
     },
     disabledEndDate (endValue) {
-      const startValue = this.queryParam.VRTimeBegin
+      const startValue = this.queryParam.ARSTime
       if (!endValue || !startValue) {
         return false
       }
@@ -215,21 +192,7 @@ export default {
       const { current, pageSize } = pagination
       this.pagination.current = current
       this.pagination.pageSize = pageSize
-      this.query()
-    },
-    query () {
-      this.loading = true
-      const requestObj = {
-        ...this.queryParam,
-        Page: this.pagination.current,
-        pageCount: this.pagination.pageSize
-      }
-      queryHistoryRecord(requestObj).then(res => {
-        this.loading = false
-        console.log('data', res)
-        this.dataSource = res.rows
-      })
-      console.log('queryParam', this.queryParam)
+      this.loadControlRecord()
     }
   }
 }

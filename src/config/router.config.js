@@ -79,6 +79,39 @@ export const asyncRouterMap = [
         ]
       },
       {
+        path: '/system',
+        name: 'System',
+        redirect: '/system/controlRecord',
+        component: RouteView,
+        meta: { title: 'menu.system.systemLog', keepAlive: false, permission: ['dashboard'] },
+        children: [
+          {
+            path: '/system/controlRecord',
+            name: 'UserAuthorization',
+            component: () => import('@/views/system/ControlRecord'),
+            meta: { title: 'menu.system.controlRecord', keepAlive: true, permission: ['dashboard'] }
+          },
+          {
+            path: '/system/operationRecord',
+            name: 'OperationRecord',
+            component: () => import('@/views/system/OperationRecord'),
+            meta: { title: 'menu.system.operationRecord', keepAlive: false, permission: ['dashboard'] }
+          },
+          {
+            path: '/system/runLog',
+            name: 'RunLog',
+            component: () => import('@/views/system/RunLog'),
+            meta: { title: 'menu.system.runLog', keepAlive: false, permission: ['dashboard'] }
+          },
+          {
+            path: '/system/debugRecord',
+            name: 'DebugRecord',
+            component: () => import('@/views/system/DebugRecord'),
+            meta: { title: 'menu.system.debugRecord', keepAlive: false, permission: ['dashboard'] }
+          }
+        ]
+      },
+      {
         path: '/alarm',
         name: 'alarm',
         redirect: '/alarm/level',
@@ -135,6 +168,27 @@ export const asyncRouterMap = [
             name: 'UserAuthorization',
             component: () => import('@/views/user/UserAuthorization'),
             meta: { title: 'menu.userManagement.userAuthorization', keepAlive: true, permission: ['dashboard'] }
+          }
+        ]
+      },
+      {
+        path: '/accessControl',
+        name: 'AccessControl',
+        redirect: '/accessControl/record',
+        component: RouteView,
+        meta: { title: 'menu.accessControl.management', keepAlive: false, permission: ['dashboard'] },
+        children: [
+          {
+            path: '/accessControl/record',
+            name: 'Record',
+            component: () => import('@/views/accessControl/Record'),
+            meta: { title: 'menu.accessControl.record', keepAlive: false, permission: ['dashboard'] }
+          },
+          {
+            path: '/accessControl/personnelManagement',
+            name: 'PersonnelManagement',
+            component: () => import('@/views/accessControl/PersonnelManagement'),
+            meta: { title: 'menu.accessControl.personnelManagement', keepAlive: true, permission: ['dashboard'] }
           }
         ]
       }

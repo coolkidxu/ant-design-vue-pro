@@ -173,7 +173,7 @@ export default {
       this.loading = true
       const requestObj = {
         ...this.queryParam,
-        page: this.pagination.current,
+        Page: this.pagination.current,
         pageCount: this.pagination.pageSize
       }
       queryHistoryRecord(requestObj).then(res => {
@@ -221,7 +221,7 @@ export default {
       this.loading = true
       const requestObj = {
         ...this.queryParam,
-        page: this.pagination.current,
+        Page: this.pagination.current,
         pageCount: this.pagination.pageSize
       }
       queryHistoryRecord(requestObj).then(res => {
@@ -238,7 +238,7 @@ export default {
 <style lang='less' scoped>
 .button-container {
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   gap: 1em;
   margin-bottom: 1em;
 }
