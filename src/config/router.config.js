@@ -87,7 +87,7 @@ export const asyncRouterMap = [
         children: [
           {
             path: '/system/controlRecord',
-            name: 'UserAuthorization',
+            name: 'ControlRecord',
             component: () => import('@/views/system/ControlRecord'),
             meta: { title: 'menu.system.controlRecord', keepAlive: true, permission: ['dashboard'] }
           },
@@ -189,6 +189,33 @@ export const asyncRouterMap = [
             name: 'PersonnelManagement',
             component: () => import('@/views/accessControl/PersonnelManagement'),
             meta: { title: 'menu.accessControl.personnelManagement', keepAlive: true, permission: ['dashboard'] }
+          }
+        ]
+      },
+      {
+        path: '/systemManagement',
+        name: 'SystemManagement',
+        redirect: '/systemManagement/systemConfig',
+        component: RouteView,
+        meta: { title: 'menu.systemManagement.management', keepAlive: false, permission: ['dashboard'] },
+        children: [
+          {
+            path: '/systemManagement/systemConfig',
+            name: 'SystemConfig',
+            component: () => import('@/views/systemManagement/SystemConfig'),
+            meta: { title: 'menu.systemManagement.systemConfig', keepAlive: false, permission: ['dashboard'] }
+          },
+          {
+            path: '/systemManagement/systemInfo',
+            name: 'SystemInfo',
+            component: () => import('@/views/systemManagement/SystemInfo'),
+            meta: { title: 'menu.systemManagement.systemInfo', keepAlive: true, permission: ['dashboard'] }
+          },
+          {
+            path: '/systemManagement/systemMaintain',
+            name: 'Maintain',
+            component: () => import('@/views/systemManagement/SystemMaintain'),
+            meta: { title: 'menu.systemManagement.systemMaintain', keepAlive: true, permission: ['dashboard'] }
           }
         ]
       }
