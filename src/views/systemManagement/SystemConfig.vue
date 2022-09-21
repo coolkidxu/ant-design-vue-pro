@@ -335,12 +335,7 @@ export default {
 </script>
 
 <style lang='less' scoped>
-.button-container {
-  display: flex;
-  justify-content: flex-start;
-  gap: 1em;
-  margin-bottom: 1em;
-}
+
 .card-flex {
   display: flex;
   justify-content: space-around;
@@ -349,11 +344,5 @@ export default {
     height: 100%;
   }
 }
-.full-width {
-  width: 100% !important;
-}
-.button-group {
-  display: flex;
-  gap: 0.5em
-}
+
 </style>

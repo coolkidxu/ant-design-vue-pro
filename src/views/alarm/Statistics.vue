@@ -236,14 +236,4 @@ export default {
 </script>
 
 <style lang='less' scoped>
-.button-container {
-  display: flex;
-  justify-content: flex-start;
-  gap: 1em;
-  margin-bottom: 1em;
-}
-
-.full-width {
-  width: 100% !important;
-}
 </style>

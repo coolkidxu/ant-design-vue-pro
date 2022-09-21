@@ -28,6 +28,9 @@
                 {{ debug === '0' ? '停用' : '启用' }}
               </a-tag>
             </span>
+            <span slot="edit" slot-scope="record">
+              <a-button type="primary" icon="form" @click="handleEdit(record)"></a-button>
+            </span>
           </a-table>
         </a-tab-pane>
         <a-tab-pane key="3" class="tab-title" tab="模拟量">
@@ -43,6 +46,9 @@
               >
                 {{ ANType === '1' ? '电压' : '电流' }}
               </a-tag>
+            </span>
+            <span slot="edit" slot-scope="record">
+              <a-button type="primary" icon="form" @click="handleEdit(record)"></a-button>
             </span>
           </a-table>
         </a-tab-pane>
@@ -110,8 +116,8 @@ export default {
         },
         {
           title: '编辑',
-          dataIndex: 'address',
-          key: 'address',
+          key: 'edit',
+          scopedSlots: { customRender: 'edit' },
           align: 'center'
         }
       ],
@@ -176,6 +182,9 @@ export default {
         this.dataSource = res.com
         this.simulationDataSource = res.analog
       })
+    },
+    handleEdit (record) {
+      console.log('record', record)
     }
   }
 }

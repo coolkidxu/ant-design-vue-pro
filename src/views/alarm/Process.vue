@@ -265,16 +265,6 @@ export default {
 
 <style lang='less' scoped>
 @import '~ant-design-vue/es/style/themes/default.less';
-.button-container {
-  display: flex;
-  justify-content: flex-start;
-  gap: 1em;
-  margin-bottom: 1em;
-}
-
-.full-width {
-  width: 100% !important;
-}
 .form-tooltip {
   margin-left: 0.5em;
   color: @primary-color
