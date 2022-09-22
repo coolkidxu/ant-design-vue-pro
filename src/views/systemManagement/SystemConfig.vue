@@ -288,12 +288,6 @@ export default {
           xs: { span: 24 },
           sm: { span: 16 }
         }
-      },
-      config: {
-        rules: [{ type: 'object', required: true, message: 'Please select time!' }]
-      },
-      rangeConfig: {
-        rules: [{ type: 'array', required: true, message: 'Please select time!' }]
       }
     }
   },

@@ -3,11 +3,6 @@ import request from '@/utils/request'
 const historyApi = {
   GetInterface: '/cgi-bin/ComManager.cgi?loadAllCom',
   Logout: '/auth/logout',
-  ForgePassword: '/auth/forge-password',
-  Register: '/auth/register',
-  twoStepCode: '/auth/2step-code',
-  SendSms: '/account/sms',
-  SendSmsErr: '/account/sms_err',
   // get my info
   UserInfo: '/user/info',
   UserMenu: '/user/nav',
@@ -15,18 +10,7 @@ const historyApi = {
   QueryHistoryRecord: 'cgi-bin/HistoryRecord.cgi?loadHistoryRecord'
 }
 
-/**
- * login func
- * parameter: {
- *     username: '',
- *     password: '',
- *     remember_me: true,
- *     captcha: '12345'
- * }
- * @param parameter
- * @returns {*}
- */
-export function getInterface (parameter) {
+export function getInterface () {
   return request({
     url: historyApi.GetInterface,
     method: 'get'
@@ -42,14 +26,6 @@ export function getSelectCondition () {
 export function queryHistoryRecord (parameter) {
   return request({
     url: historyApi.QueryHistoryRecord,
-    method: 'post',
-    data: parameter
-  })
-}
-
-export function getSmsCaptcha (parameter) {
-  return request({
-    url: historyApi.SendSms,
     method: 'post',
     data: parameter
   })
