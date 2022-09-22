@@ -4,26 +4,28 @@
       <a-row >
         <a-col :md="8" :sm="24">
           <div class="button-container">
-            <a-button type="primary" @click="loadDebugLog">批量下载</a-button>
-            <a-button>批量删除</a-button>
+            <a-button type="primary" @click="batchDownloadLog" :disabled="disableBatchAction">批量下载</a-button>
+            <a-button @click="batchDeleteLog" :disabled="disableBatchAction">批量删除</a-button>
           </div>
         </a-col>
       </a-row>
     </a-form>
     <section>
       <a-table
-        :row-selection="{ onChange: onSelectChange }"
+        :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
         :data-source="dataSource"
         :columns="columns"
         :loading="loading"
-        rowKey="ID"
+        rowKey="LogName"
       >
-        <span slot="ANType" slot-scope="ANType">
-          <a-tag
-            :color="ANType === '1' ? 'green' : 'red'"
+        <span slot="action" slot-scope="record" class="button-group">
+          <a-button type="primary" icon="download" @click="downloadLog(record)"></a-button>
+          <a-popconfirm
+            title="确定删除?"
+            @confirm="() => deleteLog(record)"
           >
-            {{ ANType === '1' ? '电压' : '电流' }}
-          </a-tag>
+            <a-button type="danger" icon="delete"></a-button>
+          </a-popconfirm>
         </span>
       </a-table>
     </section>
@@ -32,8 +34,10 @@
 
 <script>
 
-import { loadDebugLog } from '@/api/system'
-
+import { deleteLog, loadDebugLog } from '@/api/system'
+import { mapState } from 'vuex'
+import { map } from 'lodash'
+const baseURL = process.env.VUE_APP_API_BASE_URL
 export default {
   name: 'Analysis',
   data () {
@@ -53,12 +57,25 @@ export default {
           dataIndex: 'LogSize',
           key: 'LogSize',
           align: 'center'
+        },
+        {
+          title: '操作',
+          key: 'action',
+          align: 'center',
+          scopedSlots: { customRender: 'action' }
         }
       ],
       condition: {}
     }
   },
-  computed: {},
+  computed: {
+    ...mapState({
+      username: state => state.user.username
+    }),
+    disableBatchAction () {
+      return this.selectedRowKeys.length === 0
+    }
+  },
   created () {
     this.loadDebugLog()
   },
@@ -71,6 +88,43 @@ export default {
       loadDebugLog().then(res => {
         this.loading = false
         this.dataSource = res
+      })
+    },
+    downloadLog (record) {
+      window.open(baseURL + '/cgi-bin/SystemLog.cgi?downLog&username=admin&filename=' + record.LogName, '_blank')
+    },
+    deleteLog (file) {
+      const requestObj = {
+        username: this.username,
+        btSelectItem: file.LogName
+      }
+      deleteLog(requestObj).then(res => {
+        if (res.result === '0') {
+          this.$message.success('删除成功')
+          this.loadDebugLog()
+        }
+      })
+    },
+    batchDownloadLog () {
+      const requestObj = {
+        username: this.username,
+        btSelectItem: this.selectedRowKeys.join(',')
+      }
+      window.open(baseURL + '/cgi-bin/SystemLog.cgi?downLog&username=admin&filename=' + requestObj.btSelectItem, '_blank')
+      this.selectedRowKeys = []
+    },
+    batchDeleteLog () {
+      const formData = new FormData()
+      formData.append('username', this.username)
+      map(this.selectedRowKeys, (item) => {
+        formData.append('btSelectItem', item)
+      })
+      deleteLog(formData).then(res => {
+        if (res.result === '0') {
+          this.$message.success('删除成功')
+          this.loadDebugLog()
+          this.selectedRowKeys = []
+        }
       })
     }
   }

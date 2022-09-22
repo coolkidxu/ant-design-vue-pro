@@ -4,21 +4,21 @@
       <a-row :gutter="10">
         <a-col :md="4" :sm="24">
           <a-form-item label="设备类">
-            <a-select v-model="queryParam.DCID" placeholder="请选择">
+            <a-select v-model="queryParam.DCID" placeholder="请选择" allowClear>
               <a-select-option v-for="(item, index) in condition.classes" :value="item.DCID" :key="index">{{ item.DCName }}</a-select-option>
             </a-select>
           </a-form-item>
         </a-col>
         <a-col :md="4" :sm="24">
           <a-form-item label="设备">
-            <a-select v-model="queryParam.DID" placeholder="请选择">
+            <a-select v-model="queryParam.DID" placeholder="请选择" allowClear>
               <a-select-option v-for="(item, index) in condition.device" :value="item.DID" :key="index">{{ item.DName }}</a-select-option>
             </a-select>
           </a-form-item>
         </a-col>
         <a-col :md="4" :sm="24">
           <a-form-item label="监控项">
-            <a-select v-model="queryParam.VID" placeholder="请选择">
+            <a-select v-model="queryParam.VID" placeholder="请选择" allowClear>
               <a-select-option v-for="(item, index) in condition.vars" :value="item.VID" :key="index">{{ item.VName }}</a-select-option>
             </a-select>
           </a-form-item>

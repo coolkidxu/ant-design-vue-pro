@@ -4,15 +4,15 @@
       <a-row :gutter="40">
         <a-col :lg="6" :md="8" :sm="24">
           <a-form-item label="用户名">
-            <a-select v-model="queryParam.DID" placeholder="请选择">
-              <a-select-option v-for="(item, index) in condition.device" :value="item.DID" :key="index">{{ item.DName }}</a-select-option>
+            <a-select v-model="queryParam.UName" placeholder="请选择" allowClear>
+              <a-select-option v-for="(item, index) in condition" :value="item.UName" :key="index">{{ item.UName }}</a-select-option>
             </a-select>
           </a-form-item>
         </a-col>
         <a-col :lg="14" :md="12" :sm="24">
           <a-form-item label="开始时间" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }">
             <a-date-picker
-              v-model="queryParam.CRTimeBegin"
+              v-model="queryParam.OperTimeBegin"
               :disabled-date="disabledStartDate"
               show-time
               format="YYYY-MM-DD HH:mm:ss"
@@ -22,7 +22,7 @@
               @openChange="handleStartOpenChange"
             />
             <a-date-picker
-              v-model="queryParam.CRTimeEnd"
+              v-model="queryParam.OperTimeEnd"
               :disabled-date="disabledEndDate"
               show-time
               format="YYYY-MM-DD HH:mm:ss"
@@ -63,7 +63,7 @@
 
 <script>
 
-import { loadOperationRecord, loadSelectCondition } from '@/api/system'
+import { loadOperationRecord, loadOperationSelectCondition } from '@/api/system'
 
 export default {
   name: 'Analysis',
@@ -145,20 +145,20 @@ export default {
       })
     },
     loadSelectCondition () {
-      loadSelectCondition().then(res => {
+      loadOperationSelectCondition().then(res => {
         this.condition = res
         console.log('data', res)
       })
     },
     disabledStartDate (startValue) {
-      const endValue = this.queryParam.CRTimeEnd
+      const endValue = this.queryParam.OperTimeEnd
       if (!startValue || !endValue) {
         return false
       }
       return startValue.valueOf() > endValue.valueOf()
     },
     disabledEndDate (endValue) {
-      const startValue = this.queryParam.CRTimeBegin
+      const startValue = this.queryParam.OperTimeBegin
       if (!endValue || !startValue) {
         return false
       }

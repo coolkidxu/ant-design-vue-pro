@@ -4,7 +4,7 @@
       <a-row :gutter="40">
         <a-col :lg="6" :md="8" :sm="24">
           <a-form-item label="卡号">
-            <a-select v-model="queryParam.CardID" placeholder="请选择">
+            <a-select v-model="queryParam.CardID" placeholder="请选择" allowClear>
               <a-select-option v-for="(item, index) in condition" :value="item.CardID" :key="index" clear>{{ item.CardID }}</a-select-option>
             </a-select>
           </a-form-item>
