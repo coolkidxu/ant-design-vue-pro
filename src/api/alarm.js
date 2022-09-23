@@ -7,53 +7,25 @@ const alarmApi = {
   GetAlarmArmGroup: '/cgi-bin/HolidayGroup.cgi?loadAllHolidayGroup',
   GetAlarmDisArm: '/cgi-bin/WeekGroup.cgi?loadAllWeekGroup',
   GetAlarmRecord: '/cgi-bin/AlarmRecord.cgi?loadAlarmRecord',
-  GetAlarmRecordCondition: '/cgi-bin/AlarmRecord.cgi?loadSelectCondition'
+  GetAlarmRecordCondition: '/cgi-bin/AlarmRecord.cgi?loadSelectCondition',
+  AddAlarmLevel: 'cgi-bin/AlarmLevel.cgi?addLevel',
+  EditAlarmLevel: 'cgi-bin/AlarmLevel.cgi?modifyLevel',
+  DeleteAlarmLevel: 'cgi-bin/AlarmLevel.cgi?delLevel',
+  AddAlarmProcess: 'cgi-bin/AlarmProcess.cgi?addProcess',
+  EditAlarmProcess: 'cgi-bin/AlarmProcess.cgi?modifyProcess',
+  DeleteAlarmProcess: 'cgi-bin/AlarmProcess.cgi?delProcess'
 }
 
-export function loadAlarmLevel () {
-  return request({
-    url: alarmApi.GetAlarmLevel,
-    method: 'get'
-  })
-}
-export function loadAllProcess () {
-  return request({
-    url: alarmApi.GetAllProcess,
-    method: 'get'
-  })
-}
-export function loadAlarmGroup () {
-  return request({
-    url: alarmApi.GetAlarmGroup,
-    method: 'get'
-  })
-}
-
-export function loadAlarmArmGroup () {
-  return request({
-    url: alarmApi.GetAlarmArmGroup,
-    method: 'get'
-  })
-}
-
-export function loadDisAlarmArmGroup () {
-  return request({
-    url: alarmApi.GetAlarmDisArm,
-    method: 'get'
-  })
-}
-
-export function loadAlarmRecord (parameter) {
-  return request({
-    url: alarmApi.GetAlarmRecord,
-    method: 'post',
-    data: parameter
-  })
-}
-
-export function getAlarmCondition () {
-  return request({
-    url: alarmApi.GetAlarmRecordCondition,
-    method: 'get'
-  })
-}
+export const loadAlarmLevel = () => request.get(alarmApi.GetAlarmLevel)
+export const loadAllProcess = () => request.get(alarmApi.GetAllProcess)
+export const loadAlarmGroup = () => request.get(alarmApi.GetAlarmGroup)
+export const loadAlarmArmGroup = () => request.get(alarmApi.GetAlarmArmGroup)
+export const loadDisAlarmArmGroup = () => request.get(alarmApi.GetAlarmDisArm)
+export const loadAlarmRecord = (data) => request.post(alarmApi.GetAlarmRecord, data)
+export const getAlarmCondition = () => request.get(alarmApi.GetAlarmRecordCondition)
+export const AddAlarmLevel = (data) => request.post(alarmApi.AddAlarmLevel, data)
+export const EditAlarmLevel = (data) => request.post(alarmApi.EditAlarmLevel, data)
+export const DeleteAlarmLevel = (data) => request.post(alarmApi.DeleteAlarmLevel, data)
+export const AddAlarmProcess = (data) => request.post(alarmApi.AddAlarmProcess, data)
+export const EditAlarmProcess = (data) => request.post(alarmApi.EditAlarmProcess, data)
+export const DeleteAlarmProcess = (data) => request.post(alarmApi.DeleteAlarmProcess, data)

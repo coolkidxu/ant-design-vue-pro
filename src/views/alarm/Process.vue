@@ -1,138 +1,180 @@
 <template>
-  <a-card>
-    <a-form :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-      <a-row >
-        <a-col :md="8" :sm="24">
-          <div class="button-container" v-if="activeKey==='3'">
-            <a-button type="primary" @click="query">编辑</a-button>
-            <a-button>保存</a-button>
-            <a-button >取消</a-button>
-            <a-button>邮箱测试</a-button>
-          </div>
-        </a-col>
-      </a-row>
-    </a-form>
-    <section>
-      <a-tabs v-model="activeKey" @change="handleTabClick">
-        <a-tab-pane key="1" class="tab-title" tab="报警流程" force-render>
-          <a-table
-            :row-selection="{ onChange: onSelectChange }"
-            :data-source="dataSource"
-            :columns="columns"
-          >
-            <template slot="DName" slot-scope="text, record">
-              <p>1. &nbsp{{ record.APNCTime + "秒内，蜂鸣器" }} {{ record.APBuzzer === "0" ? "不报警，" :"报警，" }} {{ parseInt(record.APRelay) > 0 ? record.APRelayName + "报警，" : "无声光报警，" }}
-                {{ (record.APRelay > 0 && record.APRelayTime > 1) ? "并在"+record.APRelayTime+"秒后自动关闭，" : '' }}
-                超时未确认，通知{{ record.APNCGName+",报警确认后，"+(record.APCKey === "0" ? "不通知" : "通知" + record.APCGName) }}；
-              </p>
-              <p>2. &nbsp{{ record.APNRecTime + "分钟后报警未解除，"+(record.APNRecKey === "0" ? "不通知" :"通知" + record.APNRecGName) }};</p>
-              <p>3. &nbsp报警解除后，{{ (record.APRecKey == "0" ? "不通知" :"通知"+ record.APRecGName) }} 。</p>
-            </template >
-          </a-table>
-        </a-tab-pane>
-        <a-tab-pane key="2" class="tab-title" tab="报警组">
-          <a-table
-            :row-selection="{ onChange: onSelectChange }"
-            :data-source="groupDataSource"
-            :columns="groupColumns"
-          >
-            <template slot="groupState" slot-scope="text">
-              <a-tag :color="text === '1' ? 'green': 'red'">
-                {{ text === '1' ? '启用': '禁用' }}
-              </a-tag>
-            </template>
-          </a-table>
-        </a-tab-pane>
-        <a-tab-pane key="3" class="tab-title" tab="参数设置">
-          <section>
-            <a-form layout="horizontal" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-              <a-row>
-                <h3>
-                  电话报警
-                  <a-tooltip placement="rightTop">
-                    <template slot="title">
-                      注意:外置短信电话模块不支持拨号二次转机
-                    </template>
-                    <a-icon type="info-circle" class="form-tooltip"/>
-                  </a-tooltip>
-                </h3>
-                <a-col :span="12">
-                  <a-form-item label="本机号码">
-                    <a-input v-model="phoneNum" />
-                  </a-form-item>
-                </a-col>
-                <a-col :span="12">
-                  <a-form-item label="手机号前缀">
-                    <a-input v-model="phoneNum" />
-                  </a-form-item>
-                </a-col>
-              </a-row>
-              <a-row>
-                <h3>邮件报警</h3>
-                <a-col :span="12">
-                  <a-form-item label="smtp地址">
-                    <a-input v-model="phoneNum" />
-                  </a-form-item>
-                </a-col>
-                <a-col :span="12">
-                  <a-form-item label="端口">
-                    <a-input v-model="phoneNum" />
-                  </a-form-item>
-                </a-col>
-                <a-col :span="12">
-                  <a-form-item label="邮箱">
-                    <a-input v-model="phoneNum" />
-                  </a-form-item>
-                </a-col>
-                <a-col :span="12">
-                  <a-form-item label="账号">
-                    <a-input v-model="phoneNum" />
-                  </a-form-item>
-                </a-col>
-                <a-col :span="12">
-                  <a-form-item label="密码">
-                    <a-input v-model="phoneNum" />
-                  </a-form-item>
-                </a-col>
-                <a-col :span="12">
-                  <a-form-item label="用户名称">
-                    <a-input v-model="phoneNum" />
-                  </a-form-item>
-                </a-col>
-              </a-row>
-              <a-row>
-                <h3>云短信报警</h3>
-                <a-col :span="12">
-                  <a-form-item label="用户名">
-                    <a-input v-model="phoneNum" />
-                  </a-form-item>
-                </a-col>
-                <a-col :span="12">
-                  <a-form-item label="密码">
-                    <a-input v-model="phoneNum" />
-                  </a-form-item>
-                </a-col>
-              </a-row>
-            </a-form>
-          </section>
-        </a-tab-pane>
-      </a-tabs>
-    </section>
-  </a-card>
+  <div>
+    <a-card>
+      <a-form :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+        <a-row >
+          <a-col :md="8" :sm="24">
+            <div class="button-container" v-if="activeKey==='1'">
+              <a-button type="primary" @click="addProcess">添加</a-button>
+              <a-button @click="loadAllProcess">刷新</a-button>
+            </div>
+            <div class="button-container" v-if="activeKey==='2'">
+              <a-button type="primary" @click="addAlarmGroup">添加</a-button>
+              <a-button @click="loadAlarmGroup">刷新</a-button>
+            </div>
+            <div class="button-container" v-if="activeKey==='3'">
+              <a-button type="primary" @click="query">编辑</a-button>
+              <a-button>保存</a-button>
+              <a-button >取消</a-button>
+              <a-button>邮箱测试</a-button>
+            </div>
+          </a-col>
+        </a-row>
+      </a-form>
+      <section>
+        <a-tabs v-model="activeKey" @change="handleTabClick">
+          <a-tab-pane key="1" class="tab-title" tab="报警流程" force-render>
+            <a-table
+              :row-selection="{ selectedRowKeys:selectedRowKeys, onChange: onSelectChange }"
+              :data-source="dataSource"
+              :columns="columns"
+              rowKey="APID"
+            >
+              <template slot="DName" slot-scope="text, record">
+                <p>1. &nbsp{{ record.APNCTime + "秒内，蜂鸣器" }} {{ record.APBuzzer === "0" ? "不报警，" :"报警，" }} {{ parseInt(record.APRelay) > 0 ? record.APRelayName + "报警，" : "无声光报警，" }}
+                  {{ (record.APRelay > 0 && record.APRelayTime > 1) ? "并在"+record.APRelayTime+"秒后自动关闭，" : '' }}
+                  超时未确认，通知{{ record.APNCGName+",报警确认后，"+(record.APCKey === "0" ? "不通知" : "通知" + record.APCGName) }}；
+                </p>
+                <p>2. &nbsp{{ record.APNRecTime + "分钟后报警未解除，"+(record.APNRecKey === "0" ? "不通知" :"通知" + record.APNRecGName) }};</p>
+                <p>3. &nbsp报警解除后，{{ (record.APRecKey == "0" ? "不通知" :"通知"+ record.APRecGName) }} 。</p>
+              </template >
+              <span slot="action" slot-scope="record" class="button-group">
+                <a-button type="primary" icon="form" @click="editProcess(record)"></a-button>
+                <a-popconfirm
+                  title="确定删除?"
+                  @confirm="() => deleteProcess(record)"
+                >
+                  <a-button type="danger" icon="delete" v-if="record.APID !== '1'"></a-button>
+                </a-popconfirm>
+              </span>
+            </a-table>
+          </a-tab-pane>
+          <a-tab-pane key="2" class="tab-title" tab="报警组">
+            <a-table
+              :row-selection="{ onChange: onSelectChange }"
+              :data-source="groupDataSource"
+              :columns="groupColumns"
+            >
+              <template slot="groupState" slot-scope="text">
+                <a-tag :color="text === '1' ? 'green': 'red'">
+                  {{ text === '1' ? '启用': '禁用' }}
+                </a-tag>
+              </template>
+              <template slot="AGType" slot-scope="AGType">
+                {{ getAGType(AGType) }}
+              </template>
+              <template slot="edit" slot-scope="record">
+                <a-button type="primary" icon="form" @click="editAlarmGroup(record)"></a-button>
+                <a-popconfirm
+                  title="确定删除?"
+                  @confirm="() => deleteAlarmGroup(record)"
+                >
+                  <a-button type="danger" icon="delete"></a-button>
+                </a-popconfirm>
+              </template>
+            </a-table>
+          </a-tab-pane>
+          <a-tab-pane key="3" class="tab-title" tab="参数设置">
+            <!--            <section>
+              <a-form layout="horizontal" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
+                <a-row>
+                  <h3>
+                    电话报警
+                    <a-tooltip placement="rightTop">
+                      <template slot="title">
+                        注意:外置短信电话模块不支持拨号二次转机
+                      </template>
+                      <a-icon type="info-circle" class="form-tooltip"/>
+                    </a-tooltip>
+                  </h3>
+                  <a-col :span="12">
+                    <a-form-item label="本机号码">
+                      <a-input v-model="phoneNum" />
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="12">
+                    <a-form-item label="手机号前缀">
+                      <a-input v-model="phoneNum" />
+                    </a-form-item>
+                  </a-col>
+                </a-row>
+                <a-row>
+                  <h3>邮件报警</h3>
+                  <a-col :span="12">
+                    <a-form-item label="smtp地址">
+                      <a-input v-model="phoneNum" />
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="12">
+                    <a-form-item label="端口">
+                      <a-input v-model="phoneNum" />
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="12">
+                    <a-form-item label="邮箱">
+                      <a-input v-model="phoneNum" />
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="12">
+                    <a-form-item label="账号">
+                      <a-input v-model="phoneNum" />
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="12">
+                    <a-form-item label="密码">
+                      <a-input v-model="phoneNum" />
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="12">
+                    <a-form-item label="用户名称">
+                      <a-input v-model="phoneNum" />
+                    </a-form-item>
+                  </a-col>
+                </a-row>
+                <a-row>
+                  <h3>云短信报警</h3>
+                  <a-col :span="12">
+                    <a-form-item label="用户名">
+                      <a-input v-model="phoneNum" />
+                    </a-form-item>
+                  </a-col>
+                  <a-col :span="12">
+                    <a-form-item label="密码">
+                      <a-input v-model="phoneNum" />
+                    </a-form-item>
+                  </a-col>
+                </a-row>
+              </a-form>
+            </section>-->
+          </a-tab-pane>
+        </a-tabs>
+      </section>
+    </a-card>
+    <AddOrEditAlarmProcess ref="alarmProcessForm" @refresh="loadAllProcess" :groups="groupDataSource"></AddOrEditAlarmProcess>
+    <AddOrEditAlarmGroup ref="alarmGroupForm" @refresh="loadAlarmGroup"></AddOrEditAlarmGroup>
+  </div>
 </template>
 
 <script>
 
 import { queryHistoryRecord } from '@/api/history'
-import { loadAlarmGroup, loadAllProcess } from '@/api/alarm'
+import { DeleteAlarmProcess, loadAlarmGroup, loadAllProcess } from '@/api/alarm'
+import AddOrEditAlarmProcess from '@/views/alarm/AddOrEditAlarmProcess'
+import AddOrEditAlarmGroup from '@/views/alarm/AddOrEditAlarmGroup'
+import { mapState } from 'vuex'
+import { filter, map } from 'lodash'
 
 export default {
-  name: 'Analysis',
+  name: 'AlarmProcess',
+  components: {
+    AddOrEditAlarmProcess,
+    AddOrEditAlarmGroup
+  },
   data () {
     return {
       loading: true,
       endOpen: false,
-      activeKey: '3',
+      activeKey: '2',
       selectedRowKeys: [],
       dataSource: [],
       groupDataSource: [],
@@ -163,11 +205,33 @@ export default {
         },
         {
           title: '编辑',
-          dataIndex: 'edit',
           key: 'edit',
-          scopedSlots: { customRender: 'edit' },
+          scopedSlots: { customRender: 'action' },
           align: 'center'
         }
+      ],
+      agType: [
+        {
+          label: '短信报警',
+          value: 'AGShortMsg'
+        },
+        {
+          label: '邮件报警',
+          value: 'AGEmail'
+        },
+        {
+          label: '语音报警',
+          value: 'AGVoice'
+        },
+        {
+          label: '电话报警',
+          value: 'AGTelphone'
+        },
+        {
+          label: '云短信报警',
+          value: 'AGCMsg'
+        }
+
       ],
       groupColumns: [
         {
@@ -184,8 +248,7 @@ export default {
         },
         {
           title: '报警方式',
-          dataIndex: 'APID',
-          key: 'APID',
+          scopedSlots: { customRender: 'AGType' },
           align: 'center'
         },
         {
@@ -211,7 +274,11 @@ export default {
       condition: {}
     }
   },
-  computed: {},
+  computed: {
+    ...mapState({
+      username: state => state.user.username
+    })
+  },
   created () {
     this.loadAllProcess()
     this.loadAlarmGroup()
@@ -221,7 +288,6 @@ export default {
       this.activeKey = key
     },
     onSelectChange (selectedRowKeys) {
-      console.log('selectedRowKeys changed: ', selectedRowKeys)
       this.selectedRowKeys = selectedRowKeys
     },
     loadAllProcess () {
@@ -236,7 +302,6 @@ export default {
       loadAlarmGroup().then(res => {
         this.loading = false
         this.groupDataSource = res.alarmgroup
-        console.log(res.alarmgroup)
       })
     },
     handleChange (pagination) {
@@ -254,10 +319,43 @@ export default {
       }
       queryHistoryRecord(requestObj).then(res => {
         this.loading = false
-        console.log('data', res)
         this.dataSource = res.rows
       })
-      console.log('queryParam', this.queryParam)
+    },
+    addProcess () {
+      this.$refs.alarmProcessForm.handleAdd()
+    },
+    editProcess (record) {
+      this.$refs.alarmProcessForm.handleEdit(record)
+    },
+    addAlarmGroup () {
+      this.$refs.alarmGroupForm.handleAdd()
+    },
+    editAlarmGroup (record) {
+      this.$refs.alarmGroupForm.handleEdit(record)
+    },
+    async deleteProcess ({ APID }) {
+      if (APID !== '1') {
+        const requestObj = {
+          APIDs: APID,
+          username: this.username
+        }
+        const { result } = await DeleteAlarmProcess(requestObj)
+        if (result === '0') {
+          this.$message.success('删除成功')
+          this.loadAllProcess()
+        } else {
+          this.$message.error('删除失败')
+        }
+      }
+    },
+    getAGType (item) {
+      const usedType = filter(this.agType, ({ label, value }) => {
+        if (item[value] === '1') {
+          return label
+        }
+      })
+      return map(usedType, 'label').join(',')
     }
   }
 }

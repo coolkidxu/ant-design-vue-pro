@@ -1,43 +1,62 @@
 <template>
-  <a-card>
-    <a-form :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-      <a-row >
-        <a-col :md="8" :sm="24">
-          <div class="button-container">
-            <a-button type="primary" @click="query">添加</a-button>
-            <a-button>删除</a-button>
-          </div>
-        </a-col>
-      </a-row>
-    </a-form>
-    <section>
-      <a-table
-        :row-selection="{ onChange: onSelectChange }"
-        :data-source="dataSource"
-        :columns="columns"
-        :loading="loading"
-        @change="handleChange"
-        rowKey="ALID"
-      >
-        <span slot="color" slot-scope="color">
-          <a-tag
-            :color="'#' + color"
-          >
-            {{ color }}
-          </a-tag>
-        </span>
-      </a-table>
-    </section>
-  </a-card>
+  <div>
+    <a-card>
+      <a-form :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+        <a-row >
+          <a-col :md="8" :sm="24">
+            <div class="button-container">
+              <a-button type="primary" @click="addAlarmLevel">添加</a-button>
+            </div>
+          </a-col>
+        </a-row>
+      </a-form>
+      <section>
+        <a-table
+          :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange, getCheckboxProps: record => ({
+            props: {
+              disabled: ['1','2','3'].indexOf(record.ALID) > -1 , // Column configuration not to be checked
+            }
+          }) }"
+          :data-source="dataSource"
+          :columns="columns"
+          :loading="loading"
+          @change="handleChange"
+          rowKey="ALID"
+        >
+          <span slot="color" slot-scope="color">
+            <a-tag
+              :color="'#' + color"
+            >
+              {{ color }}
+            </a-tag>
+          </span>
+          <span slot="action" slot-scope="record" class="button-group">
+            <a-button type="primary" icon="form" @click="editLevel(record)"></a-button>
+            <a-popconfirm
+              title="确定删除?"
+              @confirm="() => deleteAlarmLevel(record)"
+            >
+              <a-button type="danger" icon="delete" v-if="record.ALID > 3"></a-button>
+            </a-popconfirm>
+          </span>
+        </a-table>
+      </section>
+    </a-card>
+    <AddOrEditAlarmLevel ref="levelForm" @refresh="refresh"></AddOrEditAlarmLevel>
+  </div>
 </template>
 
 <script>
 
-import { queryHistoryRecord } from '@/api/history'
-import { loadAlarmLevel } from '@/api/alarm'
+import { DeleteAlarmLevel, loadAlarmLevel } from '@/api/alarm'
+import AddOrEditAlarmLevel from '@/views/alarm/AddOrEditAlarmLevel'
+import { mapState } from 'vuex'
 
 export default {
-  name: 'Analysis',
+  name: 'AlarmLevel',
+  components: {
+    AddOrEditAlarmLevel
+  },
   data () {
     return {
       loading: true,
@@ -66,19 +85,22 @@ export default {
         {
           title: '编辑',
           key: 'edit',
-          scopedSlots: { customRender: 'edit' },
+          scopedSlots: { customRender: 'action' },
           align: 'center'
         }
       ]
     }
   },
-  computed: {},
+  computed: {
+    ...mapState({
+      username: state => state.user.username
+    })
+  },
   created () {
     this.getLevel()
   },
   methods: {
     onSelectChange (selectedRowKeys) {
-      console.log('selectedRowKeys changed: ', selectedRowKeys)
       this.selectedRowKeys = selectedRowKeys
     },
     getLevel () {
@@ -94,18 +116,24 @@ export default {
       this.pagination.pageSize = pageSize
       this.query()
     },
-    query () {
-      this.loading = true
+    addAlarmLevel () {
+      this.$refs.levelForm.handleAdd(this.dataSource.length)
+    },
+    editLevel (record) {
+      this.$refs.levelForm.handleEdit(record)
+    },
+    deleteAlarmLevel (record) {
       const requestObj = {
-        ...this.queryParam,
-        Page: this.pagination.current,
-        pageCount: this.pagination.pageSize
+        ALID: record.ALID,
+        username: this.username
       }
-      queryHistoryRecord(requestObj).then(res => {
-        this.loading = false
-        console.log('data', res)
-        this.dataSource = res.rows
-      })
+      const { result } = DeleteAlarmLevel(requestObj)
+      if (result === '0') {
+        this.getLevel()
+      }
+    },
+    refresh () {
+      this.getLevel()
     }
   }
 }
