@@ -10,14 +10,43 @@
     </template>
     <a-form v-bind="formItemLayout" :form="form">
       <a-form-item label="报警组名称">
-        <a-input v-model="form.APName" />
+        <a-input v-model="form.AGName" />
       </a-form-item>
-      <a-form-item label="报警方式">
-        <div class="auto-fill">
-          <div class="item-checkbox">
-            <a-checkbox v-model="form.APBuzzer" @change="changeCheckbox">语音报警</a-checkbox>
-          </div>
-        </div>
+      <a-form-item label="语音报警">
+        <a-checkbox v-model="form.AGVoice" @change="changeCheckbox"></a-checkbox>
+      </a-form-item>
+      <a-form-item label="电话(手机)报警">
+        <a-checkbox-group
+          v-model="telPhoneUserIDs"
+          :options="getOptions(userList.AGTellUser, 'phone')"
+        />
+      </a-form-item>
+      <a-form-item label="电话(座机)报警">
+        <a-checkbox-group
+          v-model="mobileUserIDs"
+          :options="getOptions(userList.AGTellUser, 'mobile')"
+        />
+      </a-form-item>
+      <a-form-item label="邮件报警">
+        <a-checkbox-group
+          v-model="emailUserIDs"
+          :options="getOptions(userList.AGEmailUser)"
+        />
+      </a-form-item>
+      <a-form-item label="短信报警">
+        <a-checkbox-group
+          v-model="msgUserIDs"
+          :options="getOptions(userList.AGMsgUser)"
+        />
+      </a-form-item>
+      <a-form-item label="云短信报警">
+        <a-checkbox-group
+          v-model="cloudMsgUserIDs"
+          :options="getOptions(userList.AGMsgUser)"
+        />
+      </a-form-item>
+      <a-form-item label="启用">
+        <a-checkbox v-model="form.AGIsAlarm" @change="changeCheckbox"></a-checkbox>
       </a-form-item>
     </a-form>
   </a-modal>
@@ -27,7 +56,7 @@
 
 import { FormState } from '@/utils/constant'
 import { mapState } from 'vuex'
-import { AddAlarmProcess, EditAlarmProcess } from '@/api/alarm'
+import { AddAlarmGroup, EditAlarmGroup, loadAlarmUser } from '@/api/alarm'
 
 export default {
   name: 'AddOrEditAlarmGroup',
@@ -36,18 +65,13 @@ export default {
       loading: false,
       visible: false,
       formState: '',
-      form: {
-        APRelay: 0,
-        APNCGID: '1',
-        APNCTime: 10,
-        APNRecTime: 1,
-        APNRecKey: 1,
-        APNRecGID: '1',
-        APCKey: 1,
-        APCGID: '1',
-        APRecKey: 1,
-        APRecGID: '1'
-      },
+      form: {},
+      userList: {},
+      msgUserIDs: [],
+      mobileUserIDs: [],
+      emailUserIDs: [],
+      cloudMsgUserIDs: [],
+      telPhoneUserIDs: [],
       formItemLayout: {
         labelCol: {
           xs: { span: 24 },
@@ -70,34 +94,59 @@ export default {
       ]
     }
   },
-  props: [ 'groups' ],
+  props: [],
   computed: {
     title: function () {
-      return this.formState === FormState.CREATE ? '新增流程' : '编辑流程'
+      return this.formState === FormState.CREATE ? '新增报警组' : '编辑报警组'
     },
     ...mapState({
       username: state => state.user.username
     })
   },
   created () {
+    this.loadUserList()
   },
   methods: {
     reset () {
-      this.form = {
-        APRelay: 0,
-          APNCGID: '1',
-          APNCTime: 10,
-          APNRecTime: 1,
-          APNRecKey: 1,
-          APNRecGID: '1',
-          APCKey: 1,
-          APCGID: '1',
-          APRecKey: 1,
-          APRecGID: '1'
+      this.form = {}
+    },
+    async loadUserList () {
+      this.userList = await loadAlarmUser()
+    },
+    getOptions (list, type) {
+      if (!list || list.length < 1) {
+        return []
       }
+      const options = []
+      if (type === 'phone') {
+        list.forEach(item => {
+          if (item.UTelphone) {
+            options.push({
+              label: item.UFullName,
+              value: item.UID
+            })
+          }
+        })
+      } else if (type === 'mobile') {
+        list.forEach(item => {
+          if (item.UMobile) {
+            options.push({
+              label: item.UFullName,
+              value: item.UID
+            })
+          }
+        })
+      } else {
+        list.forEach(item => {
+          options.push({
+            label: item.UFullName,
+            value: item.UID
+          })
+        })
+      }
+      return options
     },
     changeCheckbox (e) {
-      console.log(this.form.APBuzzer, this.form.APRelay)
     },
     showModal (formState) {
       this.formState = formState
@@ -109,22 +158,39 @@ export default {
     handleEdit (record) {
       this.showModal(FormState.EDIT)
       this.form = {
-        ...record,
-        APBuzzer: record.APBuzzer === '1',
-        APRelay: parseInt(record.APRelay),
-        APNRecKey: parseInt(record.APNRecKey),
-        APCKey: parseInt(record.APCKey),
-        APRecKey: parseInt(record.APRecKey)
+        AGVoice: record.AGVoice === '1',
+        AGIsAlarm: record.AGIsAlarm === '1'
       }
+      console.log('record', record)
     },
     async handleOk () {
       this.loading = true
-      const requestObj = {
-        ...this.form,
-        APBuzzer: this.form.APBuzzer ? 1 : 0,
-        username: this.username
+      const formData = new FormData()
+      const { AGVoice, AGIsAlarm, AGName } = this.form
+      formData.append('AGVoice', AGVoice ? 1 : 0)
+      formData.append('AGIsAlarm', AGIsAlarm ? 1 : 0)
+      formData.append('AGName', AGName)
+      formData.append('username', this.username)
+      formData.append('AGShortMsg', this.msgUserIDs.length > 0 ? 1 : 0)
+      formData.append('AGCMsg', this.cloudMsgUserIDs.length > 0 ? 1 : 0)
+      formData.append('AGEmail', this.emailUserIDs.length > 0 ? 1 : 0)
+      formData.append('AGTelphone', (this.mobileUserIDs.length + this.telPhoneUserIDs.length) > 0 ? 1 : 0)
+      for (let i = 0; i < this.telPhoneUserIDs.length; i++) {
+        formData.append('User_AGTelPhone', this.telPhoneUserIDs[i])
       }
-      const res = this.formState === FormState.EDIT ? await EditAlarmProcess(requestObj) : await AddAlarmProcess(requestObj)
+      for (let i = 0; i < this.mobileUserIDs.length; i++) {
+        formData.append('User_AGTelMobile', this.mobileUserIDs[i])
+      }
+      for (let i = 0; i < this.emailUserIDs.length; i++) {
+        formData.append('User_AGEmail', this.emailUserIDs[i])
+      }
+      for (let i = 0; i < this.msgUserIDs.length; i++) {
+        formData.append('User_AGMsg', this.msgUserIDs[i])
+      }
+      for (let i = 0; i < this.cloudMsgUserIDs.length; i++) {
+        formData.append('User_AGCMsg', this.cloudMsgUserIDs[i])
+      }
+      const res = this.formState === FormState.EDIT ? await EditAlarmGroup(formData) : await AddAlarmGroup(formData)
       const { result } = res
       if (result === '0') {
         this.$message.success('保存成功')
@@ -149,22 +215,27 @@ export default {
   display: flex;
   justify-content: space-between;
   gap: 0.5em;
+
   .ant-select, .item-checkbox {
     flex-grow: 1;
     width: 6em;
   }
+
   span {
     flex-grow: 1;
     min-width: 4em;
   }
 }
+
 .split-container {
   display: flex;
   justify-content: space-between;
   gap: 2em;
+
   .ant-select {
     flex-grow: 2;
   }
+
   span {
     flex-grow: 1;
     min-width: 4em;

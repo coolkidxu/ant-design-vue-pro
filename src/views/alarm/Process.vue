@@ -63,15 +63,20 @@
               <template slot="AGType" slot-scope="AGType">
                 {{ getAGType(AGType) }}
               </template>
-              <template slot="edit" slot-scope="record">
+              <span slot="edit" slot-scope="record" class="button-group">
                 <a-button type="primary" icon="form" @click="editAlarmGroup(record)"></a-button>
                 <a-popconfirm
                   title="确定删除?"
                   @confirm="() => deleteAlarmGroup(record)"
                 >
-                  <a-button type="danger" icon="delete"></a-button>
+                  <a-button type="danger" icon="delete" v-if="record.AGID !== '1'"></a-button>
                 </a-popconfirm>
-              </template>
+              </span>
+              <span slot="APUser" slot-scope="record">
+                <div v-for="(user, index) in getNotificationUser(record)" :key="index">
+                  {{ alarmType[user[0].ASKeyWord] }}: {{ getUserFullName(user) }}
+                </div>
+              </span>
             </a-table>
           </a-tab-pane>
           <a-tab-pane key="3" class="tab-title" tab="参数设置">
@@ -162,7 +167,7 @@ import { DeleteAlarmProcess, loadAlarmGroup, loadAllProcess } from '@/api/alarm'
 import AddOrEditAlarmProcess from '@/views/alarm/AddOrEditAlarmProcess'
 import AddOrEditAlarmGroup from '@/views/alarm/AddOrEditAlarmGroup'
 import { mapState } from 'vuex'
-import { filter, map } from 'lodash'
+import { filter, groupBy, map } from 'lodash'
 
 export default {
   name: 'AlarmProcess',
@@ -178,6 +183,7 @@ export default {
       selectedRowKeys: [],
       dataSource: [],
       groupDataSource: [],
+      userDataSource: [],
       pagination: {
         current: 1,
         pageSize: 10,
@@ -231,8 +237,14 @@ export default {
           label: '云短信报警',
           value: 'AGCMsg'
         }
-
       ],
+      alarmType: {
+        ShortMsg: '短信',
+        TelPhone: '电话(座机)',
+        TelMobile: '电话(手机)',
+        CloudMsg: '云短信',
+        Email: '邮件'
+      },
       groupColumns: [
         {
           title: '报警组号',
@@ -253,8 +265,8 @@ export default {
         },
         {
           title: '通知人',
-          dataIndex: 'APUser',
           key: 'APUser',
+          scopedSlots: { customRender: 'APUser' },
           align: 'center'
         },
         {
@@ -302,7 +314,17 @@ export default {
       loadAlarmGroup().then(res => {
         this.loading = false
         this.groupDataSource = res.alarmgroup
+        this.userDataSource = res.user
       })
+    },
+    getNotificationUser (record) {
+      const userList = filter(this.userDataSource, (item) => {
+        return item.AGID === record.AGID
+      })
+      return groupBy(userList, 'ASKeyWord')
+    },
+    getUserFullName (userList) {
+      return map(userList, 'UFullName').join(', ')
     },
     handleChange (pagination) {
       const { current, pageSize } = pagination
@@ -355,7 +377,7 @@ export default {
           return label
         }
       })
-      return map(usedType, 'label').join(',')
+      return map(usedType, 'label').join(', ')
     }
   }
 }
